@@ -1,0 +1,7 @@
+.vs/*
+.git/*
+packages/*
+PruebaCFDI/bin/*
+PruebaCFDI/obj/*
+CFDIv33Lib/bin/*
+CFDIv33Lib/obj/*
