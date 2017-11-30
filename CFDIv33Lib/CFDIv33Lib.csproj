@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ChilkatDotNet45">
+      <HintPath>D:\Desarrollos\Visual Studio 2012\OMAR\Cfdiv33Lib\Lib\ChilkatDotNet45.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -40,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CfdiResult.cs" />
     <Compile Include="Comprobante.cs" />
     <Compile Include="ComprobanteEx.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
