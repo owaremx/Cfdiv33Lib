@@ -147,7 +147,7 @@ namespace PruebaCFDI
                 {
                     Rfc= "GOYA780416GM0",
                     Nombre="RUBEN OMAR LOPEZ CRUZ",
-                    UsoCFDI = c_UsoCFDI.G03
+                    UsoCFDI = "G03"
                 }
             };
 

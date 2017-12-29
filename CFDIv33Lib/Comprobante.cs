@@ -764,7 +764,7 @@ namespace CFDIv33Lib
 
         private string numRegIdTribField;
 
-        private c_UsoCFDI usoCFDIField;
+        private string usoCFDIField;
 
         /// <comentarios/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
@@ -838,7 +838,7 @@ namespace CFDIv33Lib
 
         /// <comentarios/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public c_UsoCFDI UsoCFDI
+        public string UsoCFDI
         {
             get
             {
