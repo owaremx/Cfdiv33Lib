@@ -186,8 +186,7 @@ namespace CFDIv33Lib
             cImpuestoIVA.Impuesto = Conceptos[0].Impuestos.Traslados[0].Impuesto;
 
             this.SubTotal = subtotal;
-            this.Total = subtotal + impuestosTrasladados;
-            this.Descuento = 0;
+            this.Total = subtotal + impuestosTrasladados - this.Descuento;
             this.DescuentoSpecified = true;
 
             this.Impuestos = new ComprobanteImpuestos()
