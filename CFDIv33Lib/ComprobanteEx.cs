@@ -173,11 +173,22 @@ namespace CFDIv33Lib
         {
             decimal subtotal = 0;
             decimal impuestosTrasladados = 0;
+            decimal impuestosRetenidos = 0;
             foreach (ComprobanteConcepto concepto in conceptosField)
             {
                 subtotal += concepto.Importe;
                 foreach (ComprobanteConceptoImpuestosTraslado i in concepto.Impuestos.Traslados)
+                {
                     impuestosTrasladados += i.Importe;
+                }
+
+                if (concepto.Impuestos.Retenciones != null)
+                {
+                    foreach (ComprobanteConceptoImpuestosRetencion i in concepto.Impuestos.Retenciones)
+                    {
+                        impuestosRetenidos += i.Importe;
+                    }
+                }
             }
 
             ComprobanteImpuestosTraslado cImpuestoIVA = new ComprobanteImpuestosTraslado();
@@ -187,12 +198,12 @@ namespace CFDIv33Lib
 
             this.SubTotal = subtotal;
             this.Total = subtotal + impuestosTrasladados - this.Descuento;
-            this.DescuentoSpecified = true;
+            //this.DescuentoSpecified = true;
 
             this.Impuestos = new ComprobanteImpuestos()
             {
-                TotalImpuestosRetenidos = 0,
-                TotalImpuestosRetenidosSpecified = false,
+                TotalImpuestosRetenidos = impuestosRetenidos,
+                TotalImpuestosRetenidosSpecified = true,
                 TotalImpuestosTrasladados = impuestosTrasladados,
                 TotalImpuestosTrasladadosSpecified = true,
                 Traslados = new ComprobanteImpuestosTraslado[] { cImpuestoIVA }
