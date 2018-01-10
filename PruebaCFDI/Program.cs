@@ -88,45 +88,17 @@ namespace PruebaCFDI
                 Producto = new Producto()
                 {
                     Id="001",
-                    Descripcion = "TELA X",
-                    ClaveSAT="11162100",
-                    UnidadMedidaSAT = "MTR",
+                    Descripcion = "HOSPEDAJE",
+                    ClaveSAT= "90111503",
+                    UnidadMedidaSAT = "DAY",
                     TasaIVA = (decimal)0.16,
-                    CostoUnitario = 69
+                    CostoUnitario = (Decimal)350
                 },
-                Cantidad = (decimal)3.5,
+                Cantidad = (decimal)1,
                 
             });
-
-            v.Detalle.Add(new DetalleVenta()
-            {
-                Producto = new Producto()
-                {
-                    Id = "002",
-                    Descripcion = "TELA y",
-                    ClaveSAT = "11162100",
-                    UnidadMedidaSAT = "MTR",
-                    TasaIVA = (decimal) 0.16,
-                    CostoUnitario = (decimal)196.57
-                },
-                Cantidad = (decimal).5,
-            });
-
-            v.Detalle.Add(new DetalleVenta()
-            {
-                Producto = new Producto()
-                {
-                    Id = "001",
-                    Descripcion = "TELA z",
-                    ClaveSAT = "11162100",
-                    UnidadMedidaSAT = "MTR",
-                    CostoUnitario = 86,
-                    TasaIVA = (decimal)0.16
-                },
-                Cantidad = (decimal)18,
-            });
-
-            Comprobante comprobante = new Comprobante(@"C:\Users\rlopez\Desktop\SAT 3.3\cadenaoriginal_3_3.xslt", @"C:\Users\rlopez\Desktop\SAT 3.3\xsd\cfdv33.xsd")
+            
+            Comprobante comprobante = new Comprobante(@"C:\Users\usuario\Downloads\cfdi33\Kit Timbrado (2017) V 3.3\Kit Timbrado (2017) V 3.3\CSD Pruebas\Emisor Actual 3.3\cadenaoriginal_3_3.xslt", @"C:\Users\usuario\Downloads\cfdi33\Kit Timbrado (2017) V 3.3\Kit Timbrado (2017) V 3.3\CSD Pruebas\Emisor Actual 3.3\cfdv33.xsd")
             {
                 Fecha = DateTime.Now.ToString(),
                 Moneda = c_Moneda.MXN,
@@ -178,14 +150,21 @@ namespace PruebaCFDI
                 });
             }
 
-            String rutaFactura = @"C:\Users\rlopez\Desktop\SAT 3.3\factura.xml";
+            comprobante.ImpuestosLocalesTraslados.Add(new ImpuestosLocalesTrasladosLocales()
+            {
+                TasadeTraslado = (decimal).02,
+                ImpLocTrasladado = "ISH",
+                Importe = (decimal)6.03
+            });
+
+            String rutaFactura = @"C:\Users\usuario\Downloads\cfdi33\Kit Timbrado (2017) V 3.3\Kit Timbrado (2017) V 3.3\CSD Pruebas\Emisor Actual 3.3\factura.xml";
 
             Console.WriteLine("Generando XML");
 
             var result = comprobante.GenerarXml(
                 rutaFactura,
-                @"C:\Users\rlopez\Desktop\SAT 3.3\CSD_Pruebas_CFDI_LAN7008173R5.cer",
-                @"C:\Users\rlopez\Desktop\SAT 3.3\CSD_Pruebas_CFDI_LAN7008173R5.key",
+                @"C:\Users\usuario\Downloads\cfdi33\Kit Timbrado (2017) V 3.3\Kit Timbrado (2017) V 3.3\CSD Pruebas\Emisor Actual 3.3\CSD_Pruebas_CFDI_LAN7008173R5.cer",
+                @"C:\Users\usuario\Downloads\cfdi33\Kit Timbrado (2017) V 3.3\Kit Timbrado (2017) V 3.3\CSD Pruebas\Emisor Actual 3.3\CSD_Pruebas_CFDI_LAN7008173R5.key",
                 @"12345678a"
                 );
 

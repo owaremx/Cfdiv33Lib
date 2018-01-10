@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using System.Xml.Xsl;
@@ -18,14 +19,18 @@ namespace CFDIv33Lib
         public String RutaXSLTCadenaOriginal { get; set; }
         [System.Xml.Serialization.XmlIgnore]
         public String RutaXSDCfdi { get; set; }
+        [XmlIgnore]
+        public List<ImpuestosLocalesTrasladosLocales> ImpuestosLocalesTraslados { get; set; }
 
         public Comprobante() {
             this.versionField = "3.3";
             Conceptos = new List<ComprobanteConcepto>();
+            ImpuestosLocalesTraslados = new List<ImpuestosLocalesTrasladosLocales>();
         }
 
         public Comprobante(String RutaXSLTCadenaOriginal, String RutaXSDCfdi)
         {
+            ImpuestosLocalesTraslados = new List<ImpuestosLocalesTrasladosLocales>();
             //procesamiento de impuestos
             this.versionField = "3.3";
             Conceptos = new List<ComprobanteConcepto>();
@@ -54,16 +59,17 @@ namespace CFDIv33Lib
             return new CfdiResult();
         }
 
-        private String GetCadenaOriginal(String rutaXsltCadenaOriginal)
+        private String GetCadenaOriginal(String rutaXsltCadenaOriginal, String rutaXml)
         {
-            String rutaComprobanteTemp = Path.GetTempFileName();
+            //String rutaComprobanteTemp = Path.GetTempFileName();
             String rutaSalidaTemp = Path.GetTempFileName();
             //hguardar el xml del comprobante sin sellar para poder obtener la cadena original
-            EscribirXml(rutaComprobanteTemp, false, "","","","");
+            //EscribirXml(rutaXml, false, "", "", "", "");
+
 
             XslCompiledTransform xsl = new XslCompiledTransform();
             xsl.Load(rutaXsltCadenaOriginal);
-            xsl.Transform(rutaComprobanteTemp, rutaSalidaTemp);
+            xsl.Transform(rutaXml, rutaSalidaTemp);
             xsl = null;
 
             StreamReader reader = new StreamReader(rutaSalidaTemp);
@@ -73,13 +79,37 @@ namespace CFDIv33Lib
             reader = null;
 
             //eliminar archivos temporales
-            File.Delete(rutaComprobanteTemp);
+            //File.Delete(rutaComprobanteTemp);
             File.Delete(rutaSalidaTemp);
 
             return cadena;
+
+            //String rutaSalidaTemp = Path.GetTempFileName();
+            //String rutaEntradaTemp = Path.GetTempFileName();
+
+            //XElement xDoc = XDocument.Load(rutaXml).Root;
+            //xDoc.Save(rutaEntradaTemp);
+
+            //XslCompiledTransform xsl = new XslCompiledTransform();
+            //xsl.Load(rutaXsltCadenaOriginal);
+
+            //xsl.Transform(rutaXml, rutaSalidaTemp);
+            //xsl = null;
+
+            //StreamReader reader = new StreamReader(rutaSalidaTemp);
+            //String cadena = reader.ReadToEnd();
+            //reader.Close();
+            //reader.Dispose();
+            //reader = null;
+
+            ////eliminar archivos temporales
+            //File.Delete(rutaSalidaTemp);
+            //File.Delete(rutaEntradaTemp);
+
+            //return cadena;
         }
 
-        public CfdiResult SellarXml(String rutaCert, String rutaKey, String contrasena)
+        public CfdiResult SellarXml(String rutaCert, String rutaKey, String contrasena, String rutaArchivoXmlOrigen)
         {
             CfdiResult result = AgregarCertificado(rutaCert);
             if (!result.Correcto)
@@ -87,7 +117,12 @@ namespace CFDIv33Lib
 
             PrivateKey privKey = new PrivateKey();
 
-            String cadenaOriginal = GetCadenaOriginal(this.RutaXSLTCadenaOriginal);
+            XDocument xDoc = XDocument.Load(rutaArchivoXmlOrigen);
+            xDoc.Root.SetAttributeValue("Certificado", this.Certificado);
+            xDoc.Root.SetAttributeValue("NoCertificado", this.NoCertificado);
+            xDoc.Save(rutaArchivoXmlOrigen);
+
+            String cadenaOriginal = GetCadenaOriginal(this.RutaXSLTCadenaOriginal, rutaArchivoXmlOrigen);
 
             if(!privKey.LoadPkcs8EncryptedFile(rutaKey, contrasena))
             {
@@ -140,6 +175,15 @@ namespace CFDIv33Lib
 
             this.Sello = selloBase64;
 
+
+            xDoc.Root.SetAttributeValue("Sello", selloBase64);
+
+            //String xml = xDoc.ToString();
+            //File.WriteAllText(rutaArchivoXmlOrigen, xml);
+            xDoc.Save(rutaArchivoXmlOrigen);
+
+            //SerializarObjeto(rutaArchivoXmlOrigen);
+
             return new CfdiResult();
         }
 
@@ -147,26 +191,59 @@ namespace CFDIv33Lib
         {
             XmlReaderSettings settings = new XmlReaderSettings();
             settings.Schemas.Add("http://www.sat.gob.mx/cfd/3", RutaXSDCfdi);
-            //settings.Schemas.Add("http://www.sat.gob.mx/implocal", IO.Path.Combine(Path, "XSD\implocal.xsd"))
+            settings.Schemas.Add("http://www.sat.gob.mx/implocal", "http://www.sat.gob.mx/cfd/implocal/implocal.xsd");
             settings.ValidationType = ValidationType.Schema;
             settings.ValidationFlags = XmlSchemaValidationFlags.ReportValidationWarnings;
-
-            //settings.ValidationEventHandler += validacionXml_Settings_ValidationEventHandler;
 
             XmlReader reader = XmlReader.Create(rutaXml, settings);
             while (reader.Read()) ;
 
             reader.Close();
         }
-
-        private void validacionXml_Settings_ValidationEventHandler(object sender, ValidationEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public CfdiResult GenerarXml(String rutaSalida, String rutaCert, String rutaKey, String contrasena)
         {
             return EscribirXml(rutaSalida, true, rutaCert, rutaKey, contrasena, RutaXSLTCadenaOriginal); 
+        }
+
+        //Agregar nodo de impuestos locales 
+        private void ProcesarImpuestosLocales(String rutaArchivo)
+        {
+            if (ImpuestosLocalesTraslados.Count == 0)
+                return;
+
+            SerializarObjeto(rutaArchivo);
+
+            XDocument xDoc = XDocument.Load(rutaArchivo);
+            
+            XNamespace cfdi = "http://www.sat.gob.mx/cfd/3";
+            XElement xComplemento = xDoc.Root.Element(cfdi + "Complemento");
+            if(xComplemento == null)
+            {
+                xComplemento = new XElement(cfdi + "Complemento");
+                xDoc.Root.Add(xComplemento);
+            }
+
+            XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
+            ns.Add("implocal", "http://www.sat.gob.mx/implocal");
+
+            XmlSerializer localesSerializer = new XmlSerializer(typeof(ImpuestosLocales), "implocal");
+            ImpuestosLocales il = new ImpuestosLocales();
+            il.TrasladosLocales = ImpuestosLocalesTraslados.ToArray();
+
+            il.TotaldeTraslados = 0;
+            foreach (ImpuestosLocalesTrasladosLocales t in ImpuestosLocalesTraslados)
+                il.TotaldeTraslados += t.Importe;
+
+            StringWriter writer = new StringWriter();
+            localesSerializer.Serialize(writer, il, ns);
+
+            XElement xlocales = XElement.Parse(writer.ToString());
+            xComplemento.Add(xlocales);
+
+            String xml = xDoc.ToString();
+
+            File.WriteAllText(rutaArchivo, xml);
         }
 
         private CfdiResult EscribirXml(String rutaSalida, bool sellar, String rutaCert, String rutaKey, String contrasena, String rutaXsltCadenaOriginal)
@@ -196,9 +273,13 @@ namespace CFDIv33Lib
             cImpuestoIVA.TasaOCuota = Conceptos[0].Impuestos.Traslados[0].TasaOCuota;
             cImpuestoIVA.Impuesto = Conceptos[0].Impuestos.Traslados[0].Impuesto;
 
+            decimal impuestosLocales = 0;
+            //Impuestos locales, ISH
+            foreach (ImpuestosLocalesTrasladosLocales l in ImpuestosLocalesTraslados)
+                impuestosLocales += l.Importe;
+
             this.SubTotal = subtotal;
-            this.Total = subtotal + impuestosTrasladados - this.Descuento;
-            //this.DescuentoSpecified = true;
+            this.Total = subtotal + impuestosTrasladados - this.Descuento + impuestosLocales;
 
             this.Impuestos = new ComprobanteImpuestos()
             {
@@ -211,21 +292,17 @@ namespace CFDIv33Lib
 
             if (sellar)
             {
-                CfdiResult r= SellarXml(rutaCert, rutaKey, contrasena);
+                if (ImpuestosLocalesTraslados.Count > 0)
+                    ProcesarImpuestosLocales(rutaSalida);
+                else
+                    SerializarObjeto(rutaSalida);
+
+                CfdiResult r = SellarXml(rutaCert, rutaKey, contrasena, rutaSalida);
                 if (!r.Correcto)
                     return r;
             }
-
-            XmlSerializerNamespaces xNs = new XmlSerializerNamespaces();
-            xNs.Add("cfdi", "http://www.sat.gob.mx/cfd/3");
-            xNs.Add("xsi", "http://www.w3.org/2001/XMLSchema-instance");
-
-            XmlSerializer serializer = new XmlSerializer(typeof(Comprobante));
-            XmlTextWriter writer = new XmlTextWriter(rutaSalida, Encoding.UTF8);
-            writer.Formatting = Formatting.Indented;
-            writer.Indentation = 4;
-            serializer.Serialize(writer, this, xNs);
-            writer.Close();
+            else
+                SerializarObjeto(rutaSalida);
 
             if (sellar)
                 ValidarXML(rutaSalida);
@@ -233,5 +310,21 @@ namespace CFDIv33Lib
             return new CfdiResult();
         }
         
+        private void SerializarObjeto(String rutaSalida)
+        {
+            XmlSerializerNamespaces xNs = new XmlSerializerNamespaces();
+            xNs.Add("cfdi", "http://www.sat.gob.mx/cfd/3");
+            xNs.Add("xsi", "http://www.w3.org/2001/XMLSchema-instance");
+            xNs.Add("implocal", "http://www.sat.gob.mx/implocal");
+
+            XmlSerializer serializer = new XmlSerializer(typeof(Comprobante));
+            XmlTextWriter writer = new XmlTextWriter(rutaSalida, Encoding.UTF8);
+
+            writer.Formatting = Formatting.Indented;
+            writer.Indentation = 4;
+            serializer.Serialize(writer, this, xNs);
+            writer.Close();
+
+        }
     }
 }
