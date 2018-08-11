@@ -34,8 +34,12 @@ namespace CFDIv33Lib
             //procesamiento de impuestos
             this.versionField = "3.3";
             Conceptos = new List<ComprobanteConcepto>();
-            this.RutaXSLTCadenaOriginal = RutaXSLTCadenaOriginal;
-            this.RutaXSDCfdi = RutaXSDCfdi;
+
+            this.RutaXSDCfdi = "http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv33.xsd";
+            this.RutaXSLTCadenaOriginal = "http://www.sat.gob.mx/sitio_internet/cfd/3/cadenaoriginal_3_3/cadenaoriginal_3_3.xslt";
+
+            //this.RutaXSLTCadenaOriginal = RutaXSLTCadenaOriginal;
+            //this.RutaXSDCfdi = RutaXSDCfdi;
         }
 
         public CfdiResult AgregarCertificado(String rutaCert)
@@ -71,7 +75,7 @@ namespace CFDIv33Lib
             xsl.Load(rutaXsltCadenaOriginal);
             xsl.Transform(rutaXml, rutaSalidaTemp);
             xsl = null;
-
+            
             StreamReader reader = new StreamReader(rutaSalidaTemp);
             String cadena = reader.ReadToEnd();
             reader.Close();
@@ -191,7 +195,7 @@ namespace CFDIv33Lib
         {
             XmlReaderSettings settings = new XmlReaderSettings();
             settings.Schemas.Add("http://www.sat.gob.mx/cfd/3", RutaXSDCfdi);
-            settings.Schemas.Add("http://www.sat.gob.mx/implocal", "http://www.sat.gob.mx/cfd/implocal/implocal.xsd");
+            settings.Schemas.Add("http://www.sat.gob.mx/implocal", "http://www.sat.gob.mx/sitio_internet/cfd/implocal/implocal.xsd");
             settings.ValidationType = ValidationType.Schema;
             settings.ValidationFlags = XmlSchemaValidationFlags.ReportValidationWarnings;
 
