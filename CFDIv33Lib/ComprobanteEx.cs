@@ -293,7 +293,10 @@ namespace CFDIv33Lib
             if (sellar)
             {
                 if (ImpuestosLocalesTraslados.Count > 0)
+                {
+
                     ProcesarImpuestosLocales(rutaSalida);
+                }
                 else
                     SerializarObjeto(rutaSalida);
 
