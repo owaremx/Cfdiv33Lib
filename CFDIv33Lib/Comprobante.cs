@@ -338,15 +338,15 @@ namespace CFDIv33Lib
 
         /// <comentarios/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public decimal Descuento
+        public string Descuento
         {
             get
             {
-                return this.descuentoField;
+                return this.descuentoField.ToString("0.00");
             }
             set
             {
-                this.descuentoField = value;
+                this.descuentoField = decimal.Parse(value);
             }
         }
 
@@ -1889,15 +1889,15 @@ namespace CFDIv33Lib
 
         /// <comentarios/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public decimal Importe
+        public string Importe
         {
             get
             {
-                return this.importeField;
+                return this.importeField.ToString("0.00");
             }
             set
             {
-                this.importeField = value;
+                this.importeField = decimal.Parse(value);
             }
         }
 
@@ -2067,15 +2067,15 @@ namespace CFDIv33Lib
 
         /// <comentarios/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public decimal Importe
+        public string Importe
         {
             get
             {
-                return this.importeField;
+                return this.importeField.ToString("0.00");
             }
             set
             {
-                this.importeField = value;
+                this.importeField = decimal.Parse(value);
             }
         }
 

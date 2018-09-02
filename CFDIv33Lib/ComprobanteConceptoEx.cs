@@ -12,7 +12,7 @@ namespace CFDIv33Lib
         [XmlIgnore]
         public decimal IVA {
             get {
-                decimal traslados = (from i in Impuestos.Traslados where i.Impuesto == c_Impuesto.Item002 select i.Importe).Sum();
+                decimal traslados = (from i in Impuestos.Traslados where i.Impuesto == c_Impuesto.Item002 select decimal.Parse(i.Importe)).Sum();
                 return traslados;
             }
         }

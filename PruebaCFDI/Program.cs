@@ -83,6 +83,9 @@ namespace PruebaCFDI
     {
         static void Main(string[] args)
         {
+            Console.WriteLine(((decimal).10).ToString("0.00"));
+            Console.ReadKey();
+            return;
             Venta v = new Venta();
             v.Detalle.Add(new DetalleVenta() {
                 Producto = new Producto()
@@ -129,7 +132,7 @@ namespace PruebaCFDI
                 {
                     Cantidad = dv.Cantidad,
                     ValorUnitario = dv.Producto.CostoUnitarioSinIVA,
-                    Importe = dv.TotalSinIVA,
+                    Importe = dv.TotalSinIVA.ToString(),
                     ClaveUnidad = dv.Producto.UnidadMedidaSAT,
                     Descripcion = dv.Producto.Descripcion,
                     ClaveProdServ = dv.Producto.ClaveSAT,
@@ -140,7 +143,7 @@ namespace PruebaCFDI
                                 Base = dv.TotalSinIVA,
                                 Impuesto = c_Impuesto.Item002,   //IVA
                                 TasaOCuota = dv.Producto.TasaIVA,
-                                Importe = dv.IVA,
+                                Importe = dv.IVA.ToString(),
                                 ImporteSpecified = true,
                                 TasaOCuotaSpecified = true,
                                 TipoFactor = c_TipoFactor.Tasa

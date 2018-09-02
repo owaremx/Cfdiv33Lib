@@ -257,10 +257,10 @@ namespace CFDIv33Lib
             decimal impuestosRetenidos = 0;
             foreach (ComprobanteConcepto concepto in conceptosField)
             {
-                subtotal += concepto.Importe;
+                subtotal += decimal.Parse(concepto.Importe);
                 foreach (ComprobanteConceptoImpuestosTraslado i in concepto.Impuestos.Traslados)
                 {
-                    impuestosTrasladados += i.Importe;
+                    impuestosTrasladados += decimal.Parse(i.Importe);
                 }
 
                 if (concepto.Impuestos.Retenciones != null)
@@ -283,7 +283,7 @@ namespace CFDIv33Lib
                 impuestosLocales += l.Importe;
 
             this.SubTotal = subtotal;
-            this.Total = subtotal + impuestosTrasladados - this.Descuento + impuestosLocales;
+            this.Total = subtotal + impuestosTrasladados - decimal.Parse(this.Descuento) + impuestosLocales;
 
             this.Impuestos = new ComprobanteImpuestos()
             {
